@@ -1,0 +1,56 @@
+profile = "warships"
+entity = "Example-class research vessel"
+
+[[sources]]
+kind = "fixture"
+path = "fixtures/ship-en.txt"
+language = "en"
+
+[[sources]]
+kind = "fixture"
+path = "fixtures/ship-vi.txt"
+language = "vi"
+
+[[models]]
+provider = "rules"
+
+[[fields]]
+name = "name"
+description = "Name of the ship class"
+kind = "string"
+aliases = ["Name", "Tên"]
+
+[[fields]]
+name = "length"
+description = "Overall hull length"
+unit = "m"
+aliases = ["Length", "Chiều dài"]
+
+[[fields]]
+name = "beam"
+description = "Maximum beam"
+unit = "m"
+aliases = ["Beam", "Chiều rộng"]
+
+[[fields]]
+name = "displacement"
+description = "Displacement; distinguish standard and full load in real jobs"
+unit = "t"
+aliases = ["Displacement", "Lượng giãn nước"]
+
+[[fields]]
+name = "speed"
+description = "Maximum speed"
+unit = "kn"
+aliases = ["Speed", "Tốc độ"]
+
+[[fields]]
+name = "crew"
+description = "Crew complement, including a stated range"
+aliases = ["Crew", "Thủy thủ"]
+
+[[fields]]
+name = "armament"
+description = "Armament description including variant qualifiers"
+kind = "string"
+aliases = ["Armament", "Vũ khí"]

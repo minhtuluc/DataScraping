@@ -1,0 +1,26 @@
+profile = "warships"
+entity = "Example-class research vessel"
+
+[[sources]]
+kind = "fixture"
+path = "fixtures/ship-en.txt"
+language = "en"
+
+[[models]]
+provider = "chat_completions"
+base_url = "https://api.commandcode.ai/provider/v1"
+model = "xiaomi/mimo-v2.6-flash"
+api_key_env = "COMMANDCODE_API_KEY"
+
+[limits]
+max_model_calls = 1
+max_output_tokens = 1024
+
+[[fields]]
+name = "length"
+description = "Overall hull length"
+unit = "m"
+
+[[fields]]
+name = "crew"
+description = "Crew complement; retain a stated min/max range"

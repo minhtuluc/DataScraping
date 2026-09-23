@@ -1,0 +1,8 @@
+Dữ liệu giả lập để kiểm tra pipeline, không phải thông số tàu thật.
+Tên: Example-class research vessel
+Chiều dài: 0,1 km
+Chiều rộng: 20 m
+Lượng giãn nước: 5000000 kg
+Tốc độ: 57,412 km/h
+Thủy thủ: 120–140 persons
+Vũ khí: none (fictional demonstration)

@@ -1,0 +1,24 @@
+profile = "catalog"
+entity = "Example Sensor"
+
+[[sources]]
+kind = "fixture"
+path = "fixtures/catalog.txt"
+
+[[models]]
+provider = "rules"
+
+[[fields]]
+name = "product"
+description = "Product name"
+kind = "string"
+
+[[fields]]
+name = "mass"
+description = "Mass in kilograms"
+unit = "kg"
+
+[[fields]]
+name = "available"
+description = "Explicit availability flag"
+kind = "boolean"

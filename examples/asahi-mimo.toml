@@ -1,0 +1,101 @@
+profile = "warships"
+entity = "Asahi-class destroyer (JMSDF, modern class commissioned from 2018; DD-119 and DD-120)"
+
+[access]
+# Review source terms and permission before changing these values.
+approved = true
+permission_note = "User-requested small public-information test; Wikimedia reuse terms reviewed; JMSDF source attribution retained. Respect robots and stop on denied access."
+allowed_hosts = ["en.wikipedia.org", "ja.wikipedia.org", "www.mod.go.jp"]
+user_agent = "DataScrBot/0.1 (https://github.com/minhtuluc/DataScraping)"
+min_interval_seconds = 2
+
+[limits]
+max_documents = 3
+max_model_calls = 3
+max_chars = 100000
+max_output_tokens = 4096
+
+[[sources]]
+kind = "wikipedia"
+title = "Asahi-class destroyer"
+language = "en"
+languages = ["ja"]
+
+[[sources]]
+kind = "html"
+url = "https://www.mod.go.jp/msdf/equipment/ships/dd/asahi/"
+language = "ja"
+
+[[models]]
+provider = "chat_completions"
+base_url = "https://api.commandcode.ai/provider/v1"
+model = "xiaomi/mimo-v2.6-flash"
+api_key_env = "COMMANDCODE_API_KEY"
+
+# Add another [[models]] to compare outputs from multiple models.
+# [[models]]
+# provider = "chat_completions"
+# base_url = "https://your-provider.example/v1"
+# api_key_env = "DATASCR_MODEL_KEY"
+# model = "your-model-id"
+
+[[fields]]
+name = "name"
+description = "Name of the class; exclude individual ship names"
+kind = "string"
+
+[[fields]]
+name = "origin_country"
+description = "Country of origin of the class"
+kind = "string"
+
+[[fields]]
+name = "ship_type"
+description = "Type of vessel"
+kind = "string"
+
+[[fields]]
+name = "length"
+description = "Overall length in explicitly stated units; preserve range across variants"
+unit = "m"
+
+[[fields]]
+name = "beam"
+description = "Hull beam in explicitly stated units"
+unit = "m"
+
+[[fields]]
+name = "draft"
+description = "Draft below the waterline; do not substitute hull depth (Japanese 深さ)"
+unit = "m"
+
+[[fields]]
+name = "depth"
+description = "Hull depth as reported by the source, distinct from draft"
+unit = "m"
+
+[[fields]]
+name = "displacement_standard"
+description = "Standard displacement only; omit if load condition is unclear"
+unit = "t"
+
+[[fields]]
+name = "displacement_full_load"
+description = "Full load displacement only; preserve stated ranges"
+unit = "t"
+
+[[fields]]
+name = "speed"
+description = "Maximum speed; omit lower bounds like 'over 30' instead of treating them as exact"
+unit = "kn"
+
+[[fields]]
+name = "crew"
+description = "Crew complement, with min/max for ranges"
+
+[[fields]]
+name = "armament"
+description = "Weapons and launchers only; exclude radar, sonar, torpedo-defense devices, electronic warfare and information systems. Preserve variant qualifiers."
+kind = "string"
+list_separator = "、"
+exclude_terms = ["レーダー", "ソーナー", "ソナー", "魚雷防御", "EW", "情報処理"]

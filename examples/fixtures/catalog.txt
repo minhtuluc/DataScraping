@@ -1,0 +1,4 @@
+Synthetic catalog for testing custom field schemas.
+product: Example Sensor
+mass: 2 kg
+available: true

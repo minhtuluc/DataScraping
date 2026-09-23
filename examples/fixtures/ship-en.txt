@@ -1,0 +1,8 @@
+Synthetic demonstration data. This is not a factual ship record.
+Name: Example-class research vessel
+Length: 100 m
+Beam: 20 m
+Displacement: 5000 t
+Speed: 30 knots
+Crew: 120–140 persons
+Armament: none (fictional demonstration)
