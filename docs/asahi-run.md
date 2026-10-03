@@ -74,3 +74,39 @@ The reviewed file's numerical values remain unchanged. `origin_country`, `draft`
 the profile after the model call, so the recorded response never attempted to extract it.
 Field-specific filtering is a useful first correction; a later structured equipment schema
 should separate weapons, sensors, defenses and C4I rather than storing a single long string.
+
+## Expanded review after source audit
+
+The first extraction used a narrow 12-field profile. The saved official JMSDF class page
+contains additional facts that were missed by that schema. These are source-backed
+observations, not a second model run:
+
+| Category | Source-backed value | Scope |
+|---|---|---|
+| Propulsion | 2 gas turbines, 2 propulsion electric motors, 2 shafts | Class page |
+| Rated power | 62,500 PS | Class page |
+| 20 mm gun mounts | 2 | Class page |
+| 5-inch/62-caliber gun mounts | 1 | Class page |
+| VLS | Present; cell count unstated | Class page |
+| Surface launch tube assemblies | 2; tubes per assembly unstated | Class page |
+| Radar | Multifunction radar, navigation radar; model names unstated | Class page |
+| Sonar | Surface-ship sonar system, towed passive sonar; model names unstated | Class page |
+| Other systems | Torpedo-defense, EW, information-processing systems | Class page |
+| Hull depth | 10.9 m, distinct from draft | Class page |
+| Crew | Approximately 220 | Official PDF, DD-119 Asahi ship entry |
+| Draft | 5.4 m | Official PDF, DD-119 Asahi ship entry |
+| Range/endurance | No value verified from these official sources | Missing |
+
+The [official JMSDF ship PDF](https://www.mod.go.jp/msdf/asd/IMAGE/CONTENTS/PDF/TOPICS/kantei.pdf)
+(page 6 of the PDF) describes DD-119 Asahi, while the
+[class page](https://www.mod.go.jp/msdf/equipment/ships/dd/asahi/) describes the class.
+The PDF lists 5,050 t, 151 m and 62,600 horsepower, while the class page lists
+5,100 t, 150.5 m and 62,500 PS. Keep these as source-specific statements rather than
+silently reconciling them. The PDF crew value is approximate and ship-specific.
+No verified official range or endurance was found; a third-party estimate should not
+be promoted to an observed value.
+
+The Asahi configuration now requests propulsion, power, weapon counts, separate
+sensor/defense systems, range and endurance. A new model run has not yet been made
+because COMMANDCODE_API_KEY is not set in the current session. The previous
+filtered JSON remains a record of the earlier run.

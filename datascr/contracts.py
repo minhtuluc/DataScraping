@@ -12,6 +12,7 @@ class Document:
     text: str
     language: str = "und"
     revision: str | None = None
+    metadata: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -23,6 +24,9 @@ class Field:
     aliases: list[str] = field(default_factory=list)
     list_separator: str = ""
     exclude_terms: list[str] = field(default_factory=list)
+    properties: dict = field(default_factory=dict)
+    group: str = "general"
+    allow_qualified: bool = False
 
 
 class Model(Protocol):

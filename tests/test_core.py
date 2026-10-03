@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class PipelineTests(unittest.TestCase):
     def test_demo_provenance_normalization_conflict_and_storage(self):
         result = run(load(ROOT / "examples/warships-demo.toml"))
-        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["status"], "partial")
         self.assertTrue(result["needs_review"])
         self.assertEqual(result["fields"]["length"]["value"], 100)
         self.assertEqual(result["fields"]["displacement"]["value"], 5000)

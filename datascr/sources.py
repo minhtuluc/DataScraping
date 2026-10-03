@@ -1,8 +1,9 @@
 import json
 import re
+from io import BytesIO
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urljoin, urldefrag, urlsplit
 
 from .access import Access
 from .contracts import CollectionError, Document
@@ -69,7 +70,66 @@ class HtmlSource:
 
     def collect(self, config: dict) -> list[Document]:
         url = config["url"]
-        return [Document(url, html_text(self.access.get(url)), config.get("language", "und"))]
+        raw = self.access.get(url)
+        parser = LinkParser(url)
+        parser.feed(raw)
+        return [Document(url, html_text(raw), config.get("language", "und"),
+                         metadata={'links': parser.links})]
+
+
+class LinkParser(HTMLParser):
+    def __init__(self, base):
+        super().__init__()
+        self.base, self.links, self.current = base, [], None
+
+    def handle_starttag(self, tag, attrs):
+        if tag == 'a':
+            href = dict(attrs).get('href', '')
+            url = urldefrag(urljoin(self.base, href))[0]
+            if href and urlsplit(url).scheme == 'https':
+                self.current = {'url': url, 'text': ''}
+
+    def handle_data(self, data):
+        if self.current is not None:
+            self.current['text'] += data
+
+    def handle_endtag(self, tag):
+        if tag == 'a' and self.current is not None:
+            self.links.append(self.current)
+            self.current = None
+
+
+class PdfSource:
+    """Each page remains separate so quotes have an unambiguous page location."""
+    def __init__(self, access):
+        self.access, self.issues = access, []
+
+    def collect(self, config):
+        try:
+            from pypdf import PdfReader
+        except ImportError as exc:
+            raise CollectionError('PDF source requires pip install -e ".[pdf]"') from exc
+        raw = self.access.get_bytes(config['url'])
+        if not raw.startswith(b'%PDF-'):
+            raise CollectionError('Expected PDF; no alternate/challenge endpoint is attempted')
+        try:
+            reader = PdfReader(BytesIO(raw))
+            pages = config.get('pages', list(range(1, len(reader.pages) + 1)))
+            docs = []
+            for number in pages:
+                if type(number) is not int or not 1 <= number <= len(reader.pages):
+                    raise CollectionError('PDF page number out of range')
+                text = reader.pages[number - 1].extract_text() or ''
+                if not text.strip():
+                    self.issues.append({'page': number, 'message': 'PDF page has no text; OCR required'})
+                    continue
+                docs.append(Document(config['url'], text, config.get('language', 'und'),
+                                     metadata={'page': number}))
+            return docs
+        except CollectionError:
+            raise
+        except Exception as exc:
+            raise CollectionError('PDF parsing failed') from exc
 
 
 class WikipediaSource:
@@ -118,4 +178,5 @@ class WikipediaSource:
 
 def make_source(kind: str, base: Path, access: Access):
     return {"fixture": lambda: FixtureSource(base), "html": lambda: HtmlSource(access),
-            "wikipedia": lambda: WikipediaSource(access)}[kind]()
+            "wikipedia": lambda: WikipediaSource(access),
+            "pdf": lambda: PdfSource(access)}[kind]()

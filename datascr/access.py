@@ -2,6 +2,7 @@
 
 import ipaddress
 import socket
+import re
 import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
@@ -43,7 +44,7 @@ class Access:
         self.robots: dict[str, RobotFileParser] = {}
         self.stopped: set[str] = set()
 
-    def _request(self, url: str, origin: str, interval: float) -> str:
+    def _request(self, url: str, origin: str, interval: float, binary=False):
         wait = interval - (time.monotonic() - self.last.get(origin, 0))
         if wait > 0:
             time.sleep(wait)
@@ -51,10 +52,18 @@ class Access:
         req = Request(url, headers={"User-Agent": self.agent, "Accept-Encoding": "identity"})
         try:
             with self.opener.open(req, timeout=30) as response:
-                raw = response.read(2_000_001)
-                if len(raw) > 2_000_000:
-                    raise CollectionError("Source response exceeds 2 MB")
-                return raw.decode(response.headers.get_content_charset() or "utf-8")
+                limit = self.policy.get('max_source_bytes', 12_000_000)
+                raw = response.read(limit + 1)
+                if len(raw) > limit:
+                    raise CollectionError("Source response exceeds byte budget")
+                if binary:
+                    return raw
+                meta = re.search(br'charset\s*=\s*["\x27]?\s*([A-Za-z0-9_-]+)', raw[:8192], re.I)
+                encoding = response.headers.get_content_charset() or (meta[1].decode('ascii') if meta else 'utf-8')
+                # Browser-compatible Windows Japanese superset, including NEC/IBM characters.
+                if encoding.lower().replace('-', '_') in {'shift_jis', 'sjis', 'windows_31j'}:
+                    encoding = 'cp932'
+                return raw.decode(encoding)
         except HTTPError as exc:
             self.stopped.add(origin)
             # Stop the origin for this run, including 429 / Retry-After. No retries.
@@ -63,7 +72,7 @@ class Access:
             self.stopped.add(origin)
             raise CollectionError("Source transport/decoding failed; origin stopped") from exc
 
-    def get(self, url: str) -> str:
+    def _authorize(self, url: str):
         if self.policy.get("approved") is not True or not self.policy.get("permission_note", "").strip():
             raise CollectionError("Source requires approved=true and a permission_note after review")
         origin = public_url(url, self.policy.get("allowed_hosts", []))
@@ -85,6 +94,14 @@ class Access:
         rate = robot.request_rate(self.agent)
         if rate:
             interval = max(interval, rate.seconds / rate.requests)
+        return origin, interval
+
+    def get_bytes(self, url: str) -> bytes:
+        origin, interval = self._authorize(url)
+        return self._request(url, origin, interval, binary=True)
+
+    def get(self, url: str) -> str:
+        origin, interval = self._authorize(url)
         text = self._request(url, origin, interval)
         if any(marker in text.lower() for marker in (
             "cf-chl-", "g-recaptcha", "hcaptcha", "verify you are human", "access denied")):

@@ -9,6 +9,9 @@ description = "Configurable, evidence-first data collection toolkit"
 requires-python = ">=3.11"
 dependencies = []
 
+[project.optional-dependencies]
+pdf = ["pypdf>=5,<7"]
+
 [project.scripts]
 datascr = "datascr.cli:main"
 

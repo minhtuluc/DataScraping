@@ -8,6 +8,14 @@ COMMA_DECIMAL = {'vi', 'de', 'fr', 'es', 'it', 'pt', 'ru', 'pl', 'nl', 'tr', 'uk
 DOT_DECIMAL = {'en', 'zh', 'ja', 'ko'}
 
 
+def word_numbers(text, language):
+    if language.split('-')[0] != 'en':
+        return
+    names = 'zero one two three four five six seven eight nine ten eleven twelve'.split()
+    for match in re.finditer(r'\b(?:' + '|'.join(names) + r')\b', text, re.I):
+        yield names.index(match[0].lower()), match
+
+
 def parse_number(value, language='und'):
     if type(value) in (int, float):
         try:
@@ -72,11 +80,13 @@ def parse_quantity(text, language):
 def evidence_numbers(quote, language):
     # Replace range dashes only when separating numbers; keep unary minus signs.
     text = unicodedata.normalize('NFKC', quote)
+    text = re.sub(r'(?<=\d)[x×](?=\d)', ' × ', text)
     text = re.sub(r'(?<=\d)\s*[–—-]\s*(?=[+\-−]?\d)', ' | ', text)
     values = []
-    for match in re.finditer(rf'(?<![\w.,]){NUMBER}(?!\d|[.,]\d)', text):
+    for match in re.finditer(rf'(?<![A-Za-z0-9_.,]){NUMBER}(?!\d|[.,]\d)', text):
         try:
             values.append(parse_number(match[0], language))
         except ValueError:
             continue
+    values.extend(value for value, _ in word_numbers(text, language))
     return values

@@ -1,0 +1,41 @@
+entity = "Asahi-class destroyer (JMSDF, modern class commissioned from 2018; DD-119 and DD-120)"
+schema_file = "warships-fields.toml"
+
+[access]
+approved = true
+permission_note = "Bounded public factual research requested by user; retain source attribution, no images, obey robots and stop on denials."
+allowed_hosts = ["weaponsystems.net", "navypedia.org"]
+user_agent = "DataScrBot/0.1 (https://github.com/minhtuluc/DataScraping)"
+min_interval_seconds = 2
+
+[limits]
+max_documents = 2
+max_model_calls = 6
+chunk_chars = 16000
+chunk_overlap = 500
+field_batch_size = 12
+max_output_tokens = 8192
+
+[[models]]
+provider = "chat_completions"
+base_url = "https://api.commandcode.ai/provider/v1"
+model = "xiaomi/mimo-v2.6-flash"
+api_key_env = "COMMANDCODE_API_KEY"
+
+[[sources]]
+kind = "html"
+url = "https://weaponsystems.net/system/1167-Asahi%20class"
+language = "en"
+publisher = "WeaponSystems.net"
+source_type = "secondary"
+scope = "class"
+attribution = "WeaponSystems.net, Asahi class; retained for private source comparison."
+
+[[sources]]
+kind = "html"
+url = "https://navypedia.org/ships/japan/jap_dd_asahi.htm"
+language = "en"
+publisher = "Navypedia"
+source_type = "secondary"
+scope = "class"
+attribution = "Navypedia, ASAHI missile destroyers; retained for private source comparison."

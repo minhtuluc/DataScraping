@@ -1,0 +1,286 @@
+# Shared field schema; source text and individual property evidence are retained.
+
+[[fields]]
+name = "name"
+description = "Exact class name, not an individual ship"
+kind = "string"
+group = "identity"
+
+[[fields]]
+name = "origin_country"
+description = "Country explicitly associated with this class"
+kind = "string"
+group = "identity"
+
+[[fields]]
+name = "operator"
+description = "Operator explicitly named"
+kind = "string"
+group = "identity"
+
+[[fields]]
+name = "ship_type"
+description = "Vessel type"
+kind = "string"
+group = "identity"
+
+[[fields]]
+name = "role"
+description = "Explicit operational role"
+kind = "string"
+group = "identity"
+
+[[fields]]
+name = "builder"
+description = "Builder and shipyard explicitly named"
+kind = "string"
+group = "identity"
+
+[[fields]]
+name = "class_built_count"
+description = "Number of ships built, not another class"
+kind = "number"
+group = "identity"
+allow_qualified = true
+
+[[fields]]
+name = "length"
+description = "Overall length; preserve scope and dates"
+kind = "number"
+group = "hull"
+unit = "m"
+allow_qualified = true
+
+[[fields]]
+name = "beam"
+description = "Hull beam"
+kind = "number"
+group = "hull"
+unit = "m"
+allow_qualified = true
+
+[[fields]]
+name = "draft"
+description = "Draft 喫水 below waterline, not hull depth 深さ"
+kind = "number"
+group = "hull"
+unit = "m"
+allow_qualified = true
+
+[[fields]]
+name = "depth"
+description = "Hull depth 深さ, not draft"
+kind = "number"
+group = "hull"
+unit = "m"
+allow_qualified = true
+
+[[fields]]
+name = "displacement_standard"
+description = "Standard displacement only; no assumption if unstated"
+kind = "number"
+group = "hull"
+unit = "t"
+allow_qualified = true
+
+[[fields]]
+name = "displacement_full_load"
+description = "Full load displacement only"
+kind = "number"
+group = "hull"
+unit = "t"
+allow_qualified = true
+
+[[fields]]
+name = "speed"
+description = "Maximum speed; preserve bounds"
+kind = "number"
+group = "performance"
+unit = "kn"
+allow_qualified = true
+
+[[fields]]
+name = "crew"
+description = "Crew complement; preserve approximately/約 and distinguish embarked personnel"
+kind = "number"
+group = "personnel"
+unit = "persons"
+allow_qualified = true
+
+[[fields]]
+name = "propulsion_arrangement"
+description = "Named arrangement e.g. COGLAG only when explicitly stated"
+kind = "string"
+group = "propulsion"
+
+[[fields]]
+name = "installed_power"
+description = "Total stated propulsion power; do not sum engine ratings"
+kind = "number"
+group = "propulsion"
+unit = "mw"
+allow_qualified = true
+
+[[fields]]
+name = "shaft_count"
+description = "Number of propulsion shafts explicitly stated"
+kind = "number"
+group = "propulsion"
+allow_qualified = true
+
+[[fields]]
+name = "range_nm"
+description = "Sailing range; include stated speed/load in context.condition"
+kind = "number"
+group = "endurance"
+unit = "nmi"
+allow_qualified = true
+
+[[fields]]
+name = "range_at_speed_kn"
+description = "Speed associated with sailing range, not maximum speed"
+kind = "number"
+group = "endurance"
+unit = "kn"
+allow_qualified = true
+
+[[fields]]
+name = "endurance_days"
+description = "At sea endurance in days; never infer from range/speed"
+kind = "number"
+group = "endurance"
+unit = "days"
+allow_qualified = true
+
+[[fields]]
+name = "fuel_capacity"
+description = "Fuel mass only, do not substitute displacement"
+kind = "number"
+group = "endurance"
+unit = "t"
+allow_qualified = true
+
+[[fields]]
+name = "hangar_capacity"
+description = "Number of aircraft hangar can accommodate"
+kind = "number"
+group = "aviation"
+allow_qualified = true
+
+[[fields]]
+name = "propulsion"
+description = "All turbines, electric motors and generators, separately"
+kind = "records"
+group = "propulsion"
+[fields.properties.name]
+kind = "string"
+[fields.properties.count]
+kind = "number"
+allow_qualified = true
+[fields.properties.power]
+kind = "number"
+unit = "mw"
+allow_qualified = true
+
+[[fields]]
+name = "weapons"
+description = "Offensive guns, CIWS, missile and torpedo launchers; separate count of mounts, tubes, VLS cells, and loaded missiles. Exclude sensors and EW"
+kind = "records"
+group = "equipment"
+[fields.properties.name]
+kind = "string"
+[fields.properties.count]
+kind = "number"
+allow_qualified = true
+[fields.properties.caliber]
+kind = "number"
+unit = "mm"
+allow_qualified = true
+[fields.properties.barrel_length_calibers]
+kind = "number"
+allow_qualified = true
+[fields.properties.tubes_per_mount]
+kind = "number"
+allow_qualified = true
+[fields.properties.cells]
+kind = "number"
+allow_qualified = true
+[fields.properties.missiles_loaded]
+kind = "number"
+allow_qualified = true
+[fields.properties.ammunition]
+kind = "string"
+
+[[fields]]
+name = "sensors"
+description = "All radar, sonar and optical sensors. Keep generic names if no designation stated"
+kind = "records"
+group = "equipment"
+[fields.properties.name]
+kind = "string"
+[fields.properties.count]
+kind = "number"
+allow_qualified = true
+[fields.properties.role]
+kind = "string"
+
+[[fields]]
+name = "defensive_systems"
+description = "Torpedo countermeasures, decoys and EW systems"
+kind = "records"
+group = "equipment"
+[fields.properties.name]
+kind = "string"
+[fields.properties.count]
+kind = "number"
+allow_qualified = true
+[fields.properties.role]
+kind = "string"
+
+[[fields]]
+name = "combat_systems"
+description = "Combat management, information processing and communications"
+kind = "records"
+group = "equipment"
+[fields.properties.name]
+kind = "string"
+[fields.properties.count]
+kind = "number"
+allow_qualified = true
+[fields.properties.role]
+kind = "string"
+
+[[fields]]
+name = "aircraft"
+description = "Aircraft types carried; distinguish operating complement from hangar capacity"
+kind = "records"
+group = "aviation"
+[fields.properties.name]
+kind = "string"
+[fields.properties.count]
+kind = "number"
+allow_qualified = true
+[fields.properties.role]
+kind = "string"
+
+[[fields]]
+name = "ships"
+description = "Individual ships of the class with pennant number and dates; omit ships from other classes"
+kind = "records"
+group = "identity"
+[fields.properties.name]
+kind = "string"
+[fields.properties.pennant]
+kind = "string"
+[fields.properties.launched]
+kind = "string"
+[fields.properties.commissioned]
+kind = "string"
+
+[[fields]]
+name = "armament"
+description = "Verbatim weapons summary retained for compatibility; sensors belong in sensors records"
+kind = "string"
+group = "equipment"
+list_separator = "、"
+exclude_terms = ["レーダー", "ソーナー", "ソナー", "魚雷防御", "EW", "情報処理"]

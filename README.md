@@ -127,9 +127,9 @@ Không có cơ chế nào ở đây tự bảo đảm mọi mục đích sử d�
 
 - `documents`: văn bản đã đưa vào xử lý, URL, ngôn ngữ, revision (Wikipedia), SHA-256.
 - `attempts`: model, tài liệu, các claim model trả về hoặc lỗi.
-- `fields`: `observed`, `missing`, `conflict`; giữ mọi candidate với quote và nguồn.
+- `fields`: `observed`, `missing`, `conflict`, `scoped`; giữ mọi candidate với quote, trang PDF và phạm vi tàu.
 - `issues`: lỗi nguồn/model/validation, hoặc giới hạn bị chạm.
-- `status`: `completed` (có claim, không lỗi), `partial` (có claim và lỗi), `failed` (không claim hợp lệ).
+- `status`: `completed` (mọi trường observed, không lỗi), `partial` (có claim nhưng còn thiếu, mâu thuẫn, phạm vi khác nhau hoặc lỗi), `failed` (không claim hợp lệ).
 - `needs_review`: có trường thiếu hoặc mâu thuẫn. `completed` không có nghĩa dữ liệu đã được xác minh.
 
 Exit code: 0 chạy hoàn tất/check hợp lệ; 2 partial/failed; 1 lỗi config/output.
@@ -145,7 +145,7 @@ Hỗ trợ khoảng nối bằng `-`, `–`, `—`, số âm và ký hiệu khoa
 Không làm tròn cố định về 9 chữ số thập phân nữa; so sánh số chỉ dung sai tương đối `1e-12`
 để bỏ nhiễu phép đổi đơn vị, không hợp nhất các giá trị thực sự khác nhau.
 Những cách viết giới hạn/xấp xỉ nhận diện được (`>30`, `30+`, `over 30`, `hơn 30`, `khoảng 30`)
-bị từ chối vì schema hiện chưa biểu diễn được điều kiện đó.
+được lưu thành amount/qualifier nếu trường bật `allow_qualified`; không làm mất điều kiện.
 
 HTML giữ nhãn và giá trị cùng hàng bảng, không tự xuống dòng khi đóng thẻ inline.
 Lỗi một bản dịch Wikipedia được ghi trong `issues`, các bài tải được vẫn đi tiếp và run là `partial`.
@@ -158,9 +158,35 @@ Chi tiết phạm vi và ca kiểm thử: [cải thiện chất lượng dữ li
 Adapter đã qua kiểm thử mock và live extraction nhỏ trên Command Code với MiMo V2.6 Flash,
 DeepSeek V4 Flash và GLM-5.3 Flash; xem [báo cáo](docs/commandcode-test.md).
 Chưa xác nhận end-to-end từ Wikipedia đến model.
-Chưa có UI, tìm kiếm web diện rộng, PDF/OCR, browser rendering, cache/resume, phân mảnh bài dài,
-API native cho mọi hãng model, lập lịch hoặc hàng đợi phân tán. Bài dài bị báo skip thay vì cắt âm thầm.
+Đã có PDF văn bản theo trang, phân đoạn có overlap, chia nhóm trường, adapter native Anthropic,
+và trích xuất lại từ corpus mà không tải web. Discovery chỉ duyệt link phù hợp trong cùng host đã duyệt;
+follow_up_queries là đề xuất tìm kiếm, chưa tự chạy công cụ tìm kiếm web.
+Chưa có UI, OCR, browser rendering, tìm kiếm web diện rộng, lập lịch hoặc hàng đợi phân tán.
+Bài vượt tổng ngân sách ký tự vẫn bị báo skip.
 Khung HTTP dùng trong CLI tin cậy; chưa đủ để mở thành dịch vụ nhận URL tùy ý từ Internet
 (cần bảo vệ DNS rebinding và egress ở tầng mạng). Nhận diện challenge chỉ là heuristic.
 
 Xem [kiến trúc và hướng phát triển](docs/architecture.md), [đối chiếu repo cũ](docs/legacy-review.md).
+
+## Thu và kiểm tra lại mẫu Asahi mở rộng
+
+Schema dùng chung: `examples/warships-fields.toml` gồm 31 trường. Nhóm thiết bị dùng
+records với bằng chứng riêng cho tên, số lượng, cỡ nòng, số ống, ô VLS và công suất.
+Các trường không có bằng chứng để missing. Số lượng bệ, số ống mỗi bệ và số đạn nạp
+phải đọc riêng; không tự nhân các số để suy ra tải đạn thực tế.
+
+```powershell
+python -m datascr collect examples/asahi-mimo.toml --output output/corpus
+python scripts/run_live.py examples/asahi-mimo.toml --corpus output/corpus/RUN_ID.json --output output/extracted
+python scripts/reprocess_saved.py output/extracted/RUN_ID.json --config examples/asahi-mimo.toml
+python scripts/report_run.py output/extracted/RUN_ID.filtered.json --output output/report
+```
+
+`run_live.py` hỏi khóa bằng nhập ẩn, lưu checkpoint sau mỗi lời gọi; không lưu khóa.
+`--fields installed_power weapons` kiểm tra lại riêng các trường đã chọn;
+`--document-urls URL1 URL2` giới hạn tài liệu trong corpus.
+`report_run.py` nhận nhiều file kết quả cùng entity/schema để gộp bằng chứng.
+Adapter hỗ trợ OpenAI-compatible Chat Completions, Anthropic Messages và Ollama;
+model mặc định trong hai cấu hình Asahi là `xiaomi/mimo-v2.6-flash`.
+
+Xem [đánh giá thực nghiệm Asahi mở rộng](docs/asahi-expanded-review.md).
